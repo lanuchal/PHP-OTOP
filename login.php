@@ -1,7 +1,7 @@
 <?php include 'includes/session.php'; ?>
 <?php
   if(isset($_SESSION['user'])){
-    header('location: cart_view.php');
+    header('location: index.php');
   }
 ?>
 <?php include 'includes/header.php'; ?>
@@ -18,8 +18,8 @@
                                                 z-index: -1 ;
                                                 padding-top: 15rem;
                                                 opacity: 0.6;
-                                                background-image: url('images/bg.jpg');
-                                                background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('images/bg.jpg');
+                                                background-image: url('images/slides/1.jpg');
+                                                background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url('images/slides/1.jpg');
                                                 background-color:rgba(0, 0, 0, 0.1);
                                                 background-repeat: no-repeat;
                                                 background-position: 0;

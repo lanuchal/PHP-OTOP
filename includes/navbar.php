@@ -3,7 +3,7 @@
   <nav class="navbar navbar-static-top ">
     <div class="container">
       <div class="navbar-header">
-        <a href="index.php" class="navbar-brand"  style="color:#ffff00;"><b>OTOP</b>-Kanchanaburi</a>
+        <a href="index.php" class="navbar-brand"  style="color:#ffff00;"><b>หอพัก AMS</b></a>
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
           <i class="fa fa-bars"></i>
         </button>
@@ -14,7 +14,7 @@
         <ul class="nav navbar-nav">
           <li><a href="home.php">HOME</a></li>
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">ประเภทสินค้า <span class="caret"></span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">ประเภทห้องพัก <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
               <?php
                 $conn = $pdo->open();
@@ -37,37 +37,13 @@
             </ul>
           </li>
           
-
-          <li><a href="sales_state.php">สถานะการสั่งซื้อสินค้า</a></li>
         </ul>
-        <form method="POST" class="navbar-form navbar-left" action="search.php">
-          <div class="input-group">
-              <input type="text" class="form-control" style="width: 200px; border: 1px solid #ffff00; border-radius: 5px;" id="navbar-search-input" name="keyword" placeholder="ค้นหาสินค้า" required>
-              <span class="input-group-btn" id="searchBtn" style="display:none;">
-                  <button type="submit" class="btn btn-default"><i class="fa fa-search"></i> </button>
-              </span>
-          </div>
-        </form>
+
       </div>
       <!-- /.navbar-collapse -->
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-          <li class="dropdown messages-menu">
-            <!-- Menu toggle button -->
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <i class="fa fa-shopping-cart"></i>
-              <span class="label label-success cart_count"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="header">สินค้าทั้งหมดในตะกร้า <span class="cart_count"></span> รายการ</li>
-              <li>
-                <ul class="menu" id="cart_menu">
-                </ul>
-              </li>
-              <li class="footer"><a href="cart_view.php">สินค้าในตะกร้า</a></li>
-            </ul>
-          </li>
           <?php
             if(isset($_SESSION['user'])){
               $image = (!empty($user['photo'])) ? 'images/'.$user['photo'] : 'images/profile.png';

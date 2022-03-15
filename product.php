@@ -26,6 +26,16 @@
 		$stmt->execute(['id'=>$product['prodid'], 'now'=>$now]);
 	}
 
+	$state_room = "";
+	$color_r = "";
+
+	if($product['state_room']==0){
+		$state_room = "ไม่ว่าง";
+		$color_r = "#f53434";
+	}else{
+		$state_room = "ว่าง";
+		$color_r = "#0efc5d";
+	}
 ?>
 <?php include 'includes/header.php'; ?>
 <body class="hold-transition skin-black layout-top-nav">
@@ -72,12 +82,21 @@
 							            </span>
 							            <input type="hidden" value="<?php echo $product['prodid']; ?>" name="id">
 							        </div>
-			            			<button type="submit" class="btn btn-warning btn-lg "><i class="fa fa-shopping-cart"></i> เพิ่มสินค้าในตะกร้า</button>
+			            			<button type="submit" class="btn btn-warning btn-lg "
+									<?php
+										if($product['state_room']==0){
+											echo	"disabled";
+										}
+										?>
+									
+									><i class="fa fa-shopping-cart"></i> จองห้องพักนี้</button>
 			            		</div>
 		            		</form>
 		            	</div>
 		            	<div class="col-sm-6">
 		            		<h1 class="page-header"><?php echo $product['prodname']; ?></h1>
+							
+		            		<p ><b>สถานะห้องพัก :</b> <p style='color:<?php echo $color_r; ?>'><?php echo $state_room; ?></p></p>
 		            		<h3><b>ราคา <?php echo number_format($product['price'], 2); ?></b></h3>
 		            		<p><b>ประเภท :</b> <a href="category.php?category=<?php echo $product['cat_slug']; ?>"><?php echo $product['catname']; ?></a></p>
 		            		<p><b>รายละเอียด :</b></p>

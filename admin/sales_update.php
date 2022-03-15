@@ -9,14 +9,14 @@
 		try{
 
 			$stmt = $conn->prepare("UPDATE details SET room_state=:room_state  WHERE id=:id");
-			$stmt->execute(['room_state'=>0, 'id'=>$id]);
+			$stmt->execute(['room_state'=>1, 'id'=>$id]);
 
 			$stmt2 = $conn->prepare("SELECT * FROM details WHERE id=:id");
 			$stmt2->execute(['id'=>$id]);
 			$row = $stmt2->fetch();
 
 			$stmt3 = $conn->prepare("UPDATE products SET state_room=:state_room  WHERE id=:id");
-			$stmt3->execute(['state_room'=>1, 'id'=>$row['product_id']]);
+			$stmt3->execute(['state_room'=>0, 'id'=>$row['product_id']]);
 
 			
 			$_SESSION['success'] = 'ยืนยันจองห้องสำเร็จ';
@@ -36,6 +36,6 @@
 		$_SESSION['error'] = 'ยืนยันจองห้องไม่สำเร็จ';
 	}
 	
-	header('location: sales_active.php');
+	header('location: sales.php');
 	
 ?>

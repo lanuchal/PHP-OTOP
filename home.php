@@ -45,7 +45,7 @@ function Show(hello)
                 <section class="content">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h3>รายการสินค้าทั้งหมด  <?php echo $count ; ?> รายการ</h3>
+                            <h3>รายการห้องพักทั้งหมด  <?php echo $count ; ?> ห้อง</h3>
 		
                             <?php
 		       			
@@ -55,7 +55,19 @@ function Show(hello)
 		       			 	$inc = 4;	
 						    $stmt = $conn->prepare("SELECT * FROM products ");
 						    $stmt->execute();
+
+							$state_room = "";
+							$color_r = "";
+
 						    foreach ($stmt as $row) {
+								if($row['state_room']==0){
+									$state_room = "ไม่ว่าง";
+									$color_r = "#f53434";
+								}else{
+									$state_room = "ว่าง";
+									$color_r = "#0efc5d";
+								}
+
 						    	$image = (!empty($row['photo'])) ? 'images/'.$row['photo'] : 'images/noimage.jpg';
 						    	$inc = ($inc == 4) ? 1 : $inc + 1;
 	       						if($inc == 1) echo "<div class='row'>";
@@ -66,7 +78,10 @@ function Show(hello)
 											  <img src='".$image."' width='100%' height='230px' class='thumbnail'>
 											  <p style='position: absolute; right: 10px; bottom:-20px '> ราคา ".number_format($row['price'], 2)." บาท</p>
 											  <h4> <a href='product.php?product=".$row['slug']."'>".$row['name']." </a></h4>
-										  </div>
+										  
+												<p style='position: absolute; right: 10px; bottom: 10px ;color:$color_r'>".$state_room."</p>
+
+											  </div>
 											  
 									  </div>
 								  </div>

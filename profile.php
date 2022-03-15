@@ -71,43 +71,36 @@
 	        		</div>
 	        		<div class="box box-solid" style="padding:30px;">
 	        			<div class="box-header with-border">
-	        				<h4 class="box-title"><i class="fa fa-calendar"></i> <b>รายการสั่งซื้อ</b></h4>
+	        				<h4 class="box-title"><i class="fa fa-calendar"></i> <b>รายการจองห้องพัก</b></h4>
 	        			</div>
 	        			<div class="box-body">
 	        				<table class="table table-bordered" id="example1">
 	        					<thead>
 	        						<th class="hidden"></th>
-	        						<th>วันที่</th>
-	        						<th>เลขพัสดุ</th>
-	        						<th>ยอดรวม</th>
-	        						<th>รายละเอียด</th>
+	        						<th>ลำดับ</th>
+	        						<th>ห้องพัก</th>
+	        						<th>สถานะ</th>
 	        					</thead>
 	        					<tbody>
 	        					<?php
 	        						$conn = $pdo->open();
 
 	        						try{
-	        							$stmt = $conn->prepare("SELECT * FROM sales WHERE user_id=:user_id ORDER BY sales_date DESC");
+	        							$stmt = $conn->prepare("SELECT details.* ,products.name FROM `details` INNER JOIN products ON details.product_id = products.id  WHERE details.user_id=:user_id");
 	        							$stmt->execute(['user_id'=>$user['id']]);
+										$c = 0;
 	        							foreach($stmt as $row){
-	        								$stmt2 = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE sales_id=:id");
-	        								$stmt2->execute(['id'=>$row['id']]);
-	        								$total = 0;
-	        								foreach($stmt2 as $row2){
-	        									$subtotal = $row2['price']*$row2['quantity'];
-	        									$total += $subtotal;
-	        								}
-											
-											$pay_id = $row['pay_id'];
-											($pay_id=='0')?$pay_id="รอดำเนินการ":$pay_id = $row['pay_id'];
+	        								$c+=1 ;
+											$pay_id = $row['room_state'];
+											($pay_id=='0')?$pay_id="รอดำเนินการ":$pay_id = $row['room_state'];
 
 	        								echo "
 	        									<tr>
 	        										<td class='hidden'></td>
-	        										<td>".date('M d, Y', strtotime($row['sales_date']))."</td>
+	        										<td>".$c."</td>
+	        										<td>".$row['name']."</td>
 	        										<td>".$pay_id."</td>
-	        										<td>".number_format($total, 2)."</td>
-	        										<td><button class='btn btn-sm btn-flat btn-info transact' data-id='".$row['id']."'><i class='fa fa-search'></i> ดูรายการสั่งซื้อ</button></td>
+	        										
 	        									</tr>
 	        								";
 	        							}

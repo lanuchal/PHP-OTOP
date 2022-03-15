@@ -7,6 +7,7 @@
 
 	$id = $_POST['id'];
 	$quantity = $_POST['quantity'];
+
 	if(isset($_SESSION['user'])){
 		$stmt = $conn->prepare("SELECT *, COUNT(*) AS numrows FROM cart WHERE user_id=:user_id AND product_id=:product_id");
 		$stmt->execute(['user_id'=>$user['id'], 'product_id'=>$id]);
@@ -15,7 +16,17 @@
 			try{
 				$stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
 				$stmt->execute(['user_id'=>$user['id'], 'product_id'=>$id, 'quantity'=>$quantity]);
-				$output['message'] = 'เพิ่มในตะกร้าแล้ว';
+
+
+				
+
+				$stmt2 = $conn->prepare("INSERT INTO details (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
+				$stmt2->execute(['user_id'=>$user['id'], 'product_id'=>$id, 'quantity'=>0]);
+
+				
+
+				$output['message'] = 'จองห้องพักนี้แล้ว';
+
 				
 			}
 			catch(PDOException $e){
@@ -25,7 +36,7 @@
 		}
 		else{
 			$output['error'] = true;
-			$output['message'] = 'สินค้าอยู่ในตะกร้าแล้ว';
+			$output['message'] = 'คุณจองห้องพักนี้ไปแล้วกรุณาเลือกห้องอื่น';
 		}
 	}
 	else{
@@ -41,7 +52,7 @@
 
 		if(in_array($id, $exist)){
 			$output['error'] = true;
-			$output['message'] = 'สินค้าอยู่ในตะกร้าแล้ว';
+			$output['message'] = 'คุณจองห้องพักนี้ไปแล้วกรุณาเลือกห้องอื่น';
 		}
 		else{
 			$data['productid'] = $id;

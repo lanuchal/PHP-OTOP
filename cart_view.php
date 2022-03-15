@@ -1,9 +1,15 @@
-<?php include 'includes/session.php'; ?>
+<?php header('location: index.php');
+
+include 'includes/session.php'; ?>
 <?php include 'includes/header.php'; ?>
 <body class="hold-transition skin-black layout-top-nav">
 <div class="wrapper">
 
-	<?php include 'includes/navbar.php'; ?>
+	<?php include 'includes/navbar.php'; 
+	if(!isset($_SESSION['user'])){
+		
+	}
+	?>
 	 
 	  <div class="content-wrapper">
 	    <div class="container">

@@ -11,7 +11,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-      รายการรอยืนยันชำระเงิน
+      รอดำเนินการ
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -56,44 +56,38 @@
               <table id="example1" class="table table-bordered">
                 <thead>
                   <th class="hidden"></th>
-                  <th>รายการ(ID)</th>
-                  <th>วันที่</th>
-                  <th>สมาชิก</th>
-                  <th>เลขพัสดุ</th>
-                  <th>ราคาสินค้ารวม</th>
-                  <th>รายละเอียด</th>
+	        						<th>ลำดับ</th>
+	        						<th>ชื่อสมาชิก</th>
+	        						<th>ห้องพัก</th>
+	        						<th>สถานะ</th>
+	        						<th>จัดการ</th>
                 </thead>
                 <tbody>
                   <?php
                     $conn = $pdo->open();
 
                     try{
-                      $stmt = $conn->prepare("SELECT *, sales.id AS salesid FROM sales LEFT JOIN users ON users.id=sales.user_id WHERE sales.sales_state = 0 ORDER BY sales_date DESC");
+                      $stmt = $conn->prepare("SELECT details.* ,products.name ,users.firstname, users.lastname FROM `details` 
+                      INNER JOIN products ON details.product_id = products.id 
+                      INNER JOIN users ON details.user_id = users.id
+                      WHERE details.room_state = 0");
                       $stmt->execute();
+                      $c =0 ;
                       foreach($stmt as $row){
-                        $stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE details.sales_id=:id");
-                        $stmt->execute(['id'=>$row['salesid']]);
-                        $total = 0;
-                        foreach($stmt as $details){
-                          $subtotal = $details['price']*$details['quantity'];
-                          $total += $subtotal;
-                        }
+                        $c+=1;
                         $pay_post;
-                        ($row['pay_id']==0)?$pay_post="รอดำเนินการ":$pay_post=$row['pay_id'];
+                        ($row['room_state']=='0')?$pay_post="รอดำเนินการ":$pay_post="ดำเนินการสำเร็จ";
                         echo "
                           <tr>
                             <td class='hidden'></td>
-                            <td>".$row['salesid'] ."</td>
-                            <td>".date('M d, Y', strtotime($row['sales_date']))."</td>
-                            <td>".$row['firstname'].' '.$row['lastname']. $row['salesid'] ."</td>
+                            <td>".$c."</td>
+                            <td>".$row['firstname'].' '.$row['lastname']."</td>
+                            <td>".$row['name']."</td>
                             <td>".$pay_post."</td>
-                            <td>".number_format($total, 2)."</td>
                             <td>
-                              <a href='pay_active.php?salse_id=".$row['salesid']."' class='btn btn-success btn-sm btn-flat ' ><i class='fa fa-search'></i> ตรวจสอบ</a>
-                              <a href='sales_edit_page.php?salse_id=".$row['salesid']."' class='btn btn-warning btn-sm btn-flat ' ><i class='fa fa-edit'></i> แก้ไข</a>
-                              <button type='button' class='btn btn-danger btn-sm btn-flat transact delete' data-id='".$row['salesid']."'><i class='fa fa-trash'></i> ลบ</button>
-                              </td>
-                            
+                            <button class='btn btn-success btn-sm checkedd btn-flat' data-id='".$row['id']."'><i class='fa fa-check'></i> ยืนยัน</button>
+                            <button class='btn btn-danger btn-sm deleted btn-flat' data-id='".$row['id']."'><i class='fa fa-trash'></i> ลบ</button>
+                            </td>
                           </tr>
                         ";
                       }
@@ -123,13 +117,25 @@
 <script>
 $(function(){
 
+  $(document).on('click', '.checkedd', function(e){
+    e.preventDefault();
+    $('#checkedd').modal('show');
+    var id = $(this).data('id');
+    getRow(id);
+  });
+
   $(document).on('click', '.edit', function(e){
     e.preventDefault();
     $('#edit').modal('show');
     var id = $(this).data('id');
     getRow(id);
   });
-
+  $(document).on('click', '.deleted', function(e){
+    e.preventDefault();
+    $('#deleted').modal('show');
+    var id = $(this).data('id');
+    getRow(id);
+  });
   $(document).on('click', '.delete', function(e){
     e.preventDefault();
     $('#delete').modal('show');
@@ -163,7 +169,7 @@ function getRow(id){
       $('#edit_pay_id').val(response.pay_id);
       $('#edit_sales_date').val(response.sales_date);
       $('#edit_sales_state').val(response.sales_state);
-      $('.fullname').html('ID : '+response.id+' , วันที่ : '+response.sales_date);
+      $('.fullname').html('ID : '+response.id);
     }
   });
 }

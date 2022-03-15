@@ -11,7 +11,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-      รายการยืนยันชำระเงินสำเร็จ
+      ดำเนินการสำเร็จ
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -23,6 +23,29 @@
     <section class="content">
       <div class="row">
         <div class="col-xs-12">
+        <?php
+      
+      if(isset($_SESSION['error'])){
+        echo "
+          <div class='alert alert-danger alert-dismissible'>
+            <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+            <h4><i class='icon fa fa-warning'></i> ผิดพลาด!</h4>
+            ".$_SESSION['error']."
+          </div>
+        ";
+        unset($_SESSION['error']);
+      }
+      if(isset($_SESSION['success'])){
+        echo "
+          <div class='alert alert-success alert-dismissible'>
+            <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+            <h4><i class='icon fa fa-check'></i> สำเร็จ!</h4>
+            ".$_SESSION['success']."
+          </div>
+        ";
+        unset($_SESSION['success']);
+      }
+    ?>
           <div class="box">
             <div class="box-header with-border">
               <div class="pull-right">
@@ -33,39 +56,36 @@
               <table id="example1" class="table table-bordered">
                 <thead>
                   <th class="hidden"></th>
-                  <th>รายการ(ID)</th>
-                  <th>วันที่</th>
-                  <th>สมาชิก</th>
-                  <th>เลขพัสดุ</th>
-                  <th>ราคาสินค้ารวม</th>
-                  <th>รายละเอียด</th>
-                  <th>พิมพ์ใบเสร็จ</th>
+	        						<th>ลำดับ</th>
+	        						<th>ชื่อสมาชิก</th>
+	        						<th>ห้องพัก</th>
+	        						<th>สถานะ</th>
+	        						<th>จัดการ</th>
                 </thead>
                 <tbody>
                   <?php
                     $conn = $pdo->open();
 
                     try{
-                      $stmt = $conn->prepare("SELECT *, sales.id AS salesid FROM sales LEFT JOIN users ON users.id=sales.user_id WHERE sales.sales_state = 1 ORDER BY sales_date DESC");
+                      $stmt = $conn->prepare("SELECT details.* ,products.name ,users.firstname, users.lastname FROM `details` 
+                      INNER JOIN products ON details.product_id = products.id 
+                      INNER JOIN users ON details.user_id = users.id
+                      WHERE details.room_state = 1");
                       $stmt->execute();
+                      $c =0 ;
                       foreach($stmt as $row){
-                        $stmt = $conn->prepare("SELECT * FROM details LEFT JOIN products ON products.id=details.product_id WHERE details.sales_id=:id");
-                        $stmt->execute(['id'=>$row['salesid']]);
-                        $total = 0;
-                        foreach($stmt as $details){
-                          $subtotal = $details['price']*$details['quantity'];
-                          $total += $subtotal;
-                        }
+                        $c+=1;
+                        $pay_post;
+                        ($row['room_state']=='0')?$pay_post="รอดำเนินการ":$pay_post="ดำเนินการสำเร็จ";
                         echo "
                           <tr>
                             <td class='hidden'></td>
-                            <td>".$row['salesid'] ."</td>
-                            <td>".date('M d, Y', strtotime($row['sales_date']))."</td>
+                            <td>".$c."</td>
                             <td>".$row['firstname'].' '.$row['lastname']."</td>
-                            <td>".$row['pay_id']."</td>
-                            <td>".number_format($total, 2)."</td>
-                            <td><button type='button' class='btn btn-info btn-sm btn-flat transact' data-id='".$row['salesid']."'><i class='fa fa-search'></i> ดูรายการสินค้า</button></td>
-                            <td><a href='pay_print.php?salse_id=".$row['salesid']."' class='btn btn-success btn-sm btn-flat ' ><span class='glyphicon glyphicon-print'></span> พิมพ์</a></td>
+                            <td>".$row['name']."</td>
+                            <td>".$pay_post."</td>
+                            <td>
+                              <button class='btn btn-danger btn-sm delete btn-flat' data-id='".$row['id']."'><i class='fa fa-trash'></i> ลบ</button></td>
                           </tr>
                         ";
                       }
@@ -73,7 +93,6 @@
                     catch(PDOException $e){
                       echo $e->getMessage();
                     }
-
                     $pdo->close();
                   ?>
                 </tbody>
@@ -86,7 +105,7 @@
      
   </div>
   	<?php include 'includes/footer.php'; ?>
-    <?php include 'includes/profile_modal2.php'; ?>
+    <?php include 'includes/salse_modal.php'; ?>
 
 </div>
 <!-- ./wrapper -->
@@ -95,70 +114,51 @@
 <!-- Date Picker -->
 <script>
 $(function(){
-  //Date picker
-  $('#datepicker_add').datepicker({
-    autoclose: true,
-    format: 'yyyy-mm-dd'
-  })
-  $('#datepicker_edit').datepicker({
-    autoclose: true,
-    format: 'yyyy-mm-dd'
-  })
 
-  //Timepicker
-  $('.timepicker').timepicker({
-    showInputs: false
-  })
-
-  //Date range picker
-  $('#reservation').daterangepicker()
-  //Date range picker with time picker
-  $('#reservationtime').daterangepicker({ timePicker: true, timePickerIncrement: 30, format: 'MM/DD/YYYY h:mm A' })
-  //Date range as a button
-  $('#daterange-btn').daterangepicker(
-    {
-      ranges   : {
-        'Today'       : [moment(), moment()],
-        'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
-        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        'This Month'  : [moment().startOf('month'), moment().endOf('month')],
-        'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-      },
-      startDate: moment().subtract(29, 'days'),
-      endDate  : moment()
-    },
-    function (start, end) {
-      $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
-    }
-  )
-  
-});
-</script>
-<script>
-$(function(){
-  $(document).on('click', '.transact', function(e){
+  $(document).on('click', '.edit', function(e){
     e.preventDefault();
-    $('#transaction').modal('show');
+    $('#edit').modal('show');
     var id = $(this).data('id');
-    $.ajax({
-      type: 'POST',
-      url: 'transact.php',
-      data: {id:id},
-      dataType: 'json',
-      success:function(response){
-        $('#date').html(response.date);
-        $('#transid').html(response.transaction);
-        $('#detail').prepend(response.list);
-        $('#total').html(response.total);
-      }
-    });
+    getRow(id);
   });
 
-  $("#transaction").on("hidden.bs.modal", function () {
-      $('.prepend_items').remove();
+  $(document).on('click', '.delete', function(e){
+    e.preventDefault();
+    $('#delete').modal('show');
+    var id = $(this).data('id');
+    getRow(id);
   });
+
+  $(document).on('click', '.photo', function(e){
+    e.preventDefault();
+    var id = $(this).data('id');
+    getRow(id);
+  });
+
+  $(document).on('click', '.status', function(e){
+    e.preventDefault();
+    var id = $(this).data('id');
+    getRow(id);
+  });
+
 });
+
+function getRow(id){
+  $.ajax({
+    type: 'POST',
+    url: 'sales_row.php',
+    data: {id:id},
+    dataType: 'json',
+    success: function(response){
+      $('.salesid').val(response.id);
+      $('#edit_user_id').val(response.user_id);
+      $('#edit_pay_id').val(response.pay_id);
+      $('#edit_sales_date').val(response.sales_date);
+      $('#edit_sales_state').val(response.sales_state);
+      $('.fullname').html('ID : '+response.id);
+    }
+  });
+}
 </script>
 </body>
 </html>
